@@ -90,8 +90,8 @@ with st.sidebar:
         "🔑 输入 API Key", type="password", placeholder="在此粘贴你的 sk-...", key="ds_api_key_v2",
         help="API Key 是敏感信息，已自动加密。\n\n建议到官网申请一个 API Key，不测也给我去领一个！万一哪天要用呢？"
     )
-    api_base = st.text_input("🌐 API Base URL", value="", placeholder="例如: https://api.deepseek.com/v1", help="请输入服务商提供的 API 基础地址（兼容 OpenAI 格式）。")
-    model_id = st.text_input("🤖 模型名称 (Model ID)", value="", placeholder="例如: deepseek-chat 或 gpt-4o", help="填入具体的模型代号即可。")
+    api_base = st.text_input("🌐 API Base URL", value="", placeholder="例如: https://api.deepseek.com/v1", help="请输入服务商提供的 API 基础地址（这部分可找AI）。")
+    model_id = st.text_input("🤖 模型名称 (Model ID)", value="", placeholder="例如: deepseek-chat 或 gpt-4o", help="填入具体的模型代号即可。（这部分也可找AI）")
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
     academic_mode = st.checkbox("🎓 开启学术分析模式")
