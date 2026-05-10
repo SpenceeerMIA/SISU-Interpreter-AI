@@ -84,8 +84,8 @@ def analyze_logic(client, src_text, interp_text, src_lang, interp_lang, academic
 with st.sidebar:
     st.title("⚙️ 配置与指引")
 
-    user_api_key = st.text_input("🔑 API Key", type="password", placeholder="sk-...")
-    model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="手机端建议用 Small")
+    user_api_key = st.text_input("🔑 API Key", index=1, help="建议到DeepSeek老师那儿领个api，真的很有用！不测试也给我去领！", type="password", placeholder="sk-...")
+    model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="经费有限，其他size绝赞缺货中（")
     academic_mode = st.checkbox("🎓 开启学术分析模式")
     
     st.markdown("---")
