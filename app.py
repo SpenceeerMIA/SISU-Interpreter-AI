@@ -83,17 +83,16 @@ def analyze_logic(client, src_text, interp_text, src_lang, interp_lang, academic
 # --- 侧边栏：表情包与配置 ---
 with st.sidebar:
     st.title("⚙️ 配置与指引")
-    
-    # 🌈 开发者寄语：表情包版
-    st.markdown("### 💌 Spencer寄语")
-    
-    # 核心展示逻辑：尝试加载 sisu_meme.png
+
+        # 核心展示逻辑：尝试加载 sisu_meme.png
     if os.path.exists("sisu_meme.png"):
         st.image("sisu_meme.png", caption="赶论文前中后期的Spencer真实写照：", use_container_width=True)
     else:
         st.info("🖼️ 待上传表情包：sisu_meme.png")
         st.caption("请确保图片已重命名并上传至 GitHub 仓库根目录。")
-
+        
+    # 🌈 开发者寄语
+    st.markdown("### 💌 Spencer寄语")
     st.markdown("""
     > 正能量来了！
     > **格高志远，学贯中外。**
