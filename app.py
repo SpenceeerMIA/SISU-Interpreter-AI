@@ -75,7 +75,6 @@ with st.sidebar:
         key="ds_api_key_v2",
         help="""API Key 是敏感信息，已自动加密。
         
-**简单引导：**
 1. 请先前往你选择的 AI 服务商官网申请 Key。
 2. 即使暂时不测，也建议先领取一个备用！"""
     )
