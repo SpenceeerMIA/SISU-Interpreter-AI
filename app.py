@@ -59,12 +59,12 @@ with st.sidebar:
     # 修复点 1：删掉 index=1
     user_api_key = st.text_input(
         "🔑 API Key", 
-        help="建议到DeepSeek官网申请一个API Key，性价比极高！", 
+        help="建议到DeepSeek官网申请一个API Key，不测也给我去领一个！", 
         type="password", 
         placeholder="sk-..."
     )
     
-    model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="经费有限，其他精度暂未开放")
+    model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
     academic_mode = st.checkbox("🎓 开启学术分析模式")
     
     st.markdown("---")
