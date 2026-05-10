@@ -62,7 +62,7 @@ with st.sidebar:
         type="password", 
         placeholder="在此粘贴 sk-...",
         key="ds_api_key_v2", # 更改 key 名通常能重置浏览器的自动填充记录
-        help="API Key 是敏感信息，已自动加密。<br>建议到DeepSeek官网申请一个API Key，不测也给我去领一个！"
+        help="API Key 是敏感信息，已自动加密。And 建议到DeepSeek官网申请一个API Key，不测也给我去领一个！"
     )
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
