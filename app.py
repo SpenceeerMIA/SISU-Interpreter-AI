@@ -58,11 +58,12 @@ with st.sidebar:
 
     # 修复点 1：删掉 index=1
     user_api_key = st.text_input(
-        "🔑 API Key", 
-        help="建议到DeepSeek官网申请一个API Key，不测也给我去领一个！", 
+        "🔑 输入 DeepSeek API Key", 
         type="password", 
-        placeholder="sk-...",
-        autocomplete="new-password" # 💡 关键点：告诉浏览器这是“新密码”，不要尝试自动填入旧密码
+        placeholder="在此粘贴 sk-...",
+        key="ds_api_key_v2", # 更改 key 名通常能重置浏览器的自动填充记录
+        help="API Key 是敏感信息，已自动加密。
+        建议到DeepSeek官网申请一个API Key，不测也给我去领一个！"
     )
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
@@ -102,6 +103,9 @@ with st.sidebar:
 # --- 主界面 ---
 st.title("🏫 SISU 口译练习评估系统")
 st.markdown("> **“格高志远 学贯中外”** —— 为上外学子定制的 AI 助学实验项目")
+
+# 📱 重新加回的手机端提示
+st.info("📱 **手机端用户：** 点击下方上传框后，可直接选择“录音机”现场录制你的翻译。")
 
 current_hour = time.localtime().tm_hour
 if 0 <= current_hour < 6:
