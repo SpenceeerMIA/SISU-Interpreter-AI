@@ -28,7 +28,7 @@ st.set_page_config(
     page_title="SISU口译教练 AI", 
     layout="wide", 
     page_icon="🏫",
-    initial_sidebar_ate="auto"
+    initial_sidebar_state="auto"
 )
 
 # ============================================================
