@@ -67,19 +67,32 @@ def analyze_logic(client, model_name, src_text, interp_text, academic=False):
 with st.sidebar:
     st.title("⚙️ 配置与指引")
 
-    # --- API 配置区 (已恢复 Help 提示) ---
+# --- API 配置区 (仅修改此部分) ---
     user_api_key = st.text_input(
         "🔑 输入 API Key", 
         type="password", 
-        placeholder="在此粘贴 sk-...",
+        placeholder="在此粘贴你的 sk-...",
         key="ds_api_key_v2",
         help="""API Key 是敏感信息，已自动加密。
         
-建议到官网申请一个API Key，不测也给我去领一个！"""
+**简单引导：**
+1. 请先前往你选择的 AI 服务商官网申请 Key。
+2. 即使暂时不测，也建议先领取一个备用！"""
     )
     
-    api_base = st.text_input("🌐 API Base URL", value="https://api.deepseek.com", help="兼容 OpenAI 格式的 API 地址")
-    model_id = st.text_input("🤖 模型名称 (Model ID)", value="deepseek-chat", help="例如 gpt-4o 或 deepseek-chat")
+    api_base = st.text_input(
+        "🌐 API Base URL", 
+        value="",  # 已移除默认值
+        placeholder="例如: https://api.deepseek.com/v1",
+        help="请输入服务商提供的 API 基础地址（兼容 OpenAI 格式）。"
+    )
+    
+    model_id = st.text_input(
+        "🤖 模型名称 (Model ID)", 
+        value="",  # 已移除默认值
+        placeholder="例如: deepseek-chat 或 gpt-4o",
+        help="请输入你想要调用的具体模型 ID。"
+    )
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
     academic_mode = st.checkbox("🎓 开启学术分析模式")
