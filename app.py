@@ -61,7 +61,8 @@ with st.sidebar:
         "🔑 API Key", 
         help="建议到DeepSeek官网申请一个API Key，不测也给我去领一个！", 
         type="password", 
-        placeholder="sk-..."
+        placeholder="sk-...",
+        autocomplete="new-password" # 💡 关键点：告诉浏览器这是“新密码”，不要尝试自动填入旧密码
     )
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
@@ -104,9 +105,9 @@ st.markdown("> **“格高志远 学贯中外”** —— 为上外学子定制�
 
 current_hour = time.localtime().tm_hour
 if 0 <= current_hour < 6:
-    st.warning("🌙 **深夜坚持练习的 SISUer：** 辛苦了！早点休息。")
+    st.warning("🌙 **很晚了！！** 求你，赶紧睡吧！")
 elif 6 <= current_hour < 9:
-    st.info("☕ **早安！** 又是晨读好时光。")
+    st.info("☕ **早啊！** 一日之计在于晨，看到这个，说明你起得很早了，先睡会儿吧（")
 
 st.write("---")
 
