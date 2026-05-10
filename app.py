@@ -84,6 +84,23 @@ def analyze_logic(client, src_text, interp_text, src_lang, interp_lang, academic
 with st.sidebar:
     st.title("⚙️ 配置与指引")
 
+    user_api_key = st.text_input("🔑 API Key", type="password", placeholder="sk-...")
+    model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="手机端建议用 Small")
+    academic_mode = st.checkbox("🎓 开启学术分析模式")
+    
+    st.markdown("---")
+    
+    if 'whisper_model' not in st.session_state:
+        if st.button("🚀 第一步：激活 AI 引擎"):
+            with st.spinner("正在云端初始化引擎..."):
+                st.session_state.whisper_model = whisper.load_model(model_size)
+                st.success("✅ 引擎就绪！")
+                st.balloons() # ✨ 激活成功彩蛋
+    else:
+        st.success(f"✅ 引擎 ({model_size}) 运行中")
+
+    st.markdown("---")
+
     # 🌈 Spencer 寄语与表情包展示区
     
     # 图片上方的文字描述
@@ -100,27 +117,10 @@ with st.sidebar:
     
     # 下方文字分三行独立显示
     st.markdown("""
-    正能量来了！  
-    **格高志远，学贯中外。** 
-    **祝各位同学练习顺利，早日上岸！**
+    正能量来了！  （这里有两个空格）
+    **格高志远，学贯中外。**
+    祝各位同学练习顺利，早日上岸！
     """)
-    
-    st.markdown("---")
-
-    user_api_key = st.text_input("🔑 API Key", type="password", placeholder="sk-...")
-    model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="手机端建议用 Small")
-    academic_mode = st.checkbox("🎓 开启学术分析模式")
-    
-    st.markdown("---")
-    
-    if 'whisper_model' not in st.session_state:
-        if st.button("🚀 第一步：激活 AI 引擎"):
-            with st.spinner("正在云端初始化引擎..."):
-                st.session_state.whisper_model = whisper.load_model(model_size)
-                st.success("✅ 引擎就绪！")
-                st.balloons() # ✨ 激活成功彩蛋
-    else:
-        st.success(f"✅ 引擎 ({model_size}) 运行中")
 
 # --- 主界面 ---
 st.title("🏫 SISU 口译练习评估系统")
