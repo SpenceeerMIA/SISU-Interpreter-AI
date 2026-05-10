@@ -80,24 +80,29 @@ def analyze_logic(client, src_text, interp_text, src_lang, interp_lang, academic
 # 3. 网页界面 (表情包寄语、彩蛋、布局)
 # ============================================================
 
-# --- 侧边栏：表情包与配置 ---
+# --- 侧边栏：配置与个性化展示 ---
 with st.sidebar:
     st.title("⚙️ 配置与指引")
 
-        # 核心展示逻辑：尝试加载 sisu_meme.png
+    # 🌈 Spencer 寄语与表情包展示区
+    st.markdown("### 💌 Spencer寄语")
+    
+    # 图片上方的文字描述
+    st.write("赶论文前中后期的Spencer真实写照：")
+    
+    # 核心展示逻辑：尝试加载 sisu_meme.png
     if os.path.exists("sisu_meme.png"):
-        st.image("sisu_meme.png", caption="赶论文前中后期的Spencer真实写照：", use_container_width=True)
+        st.image("sisu_meme.png", use_container_width=True)
     else:
         st.info("🖼️ 待上传表情包：sisu_meme.png")
         st.caption("请确保图片已重命名并上传至 GitHub 仓库根目录。")
         
-    # 🌈 开发者寄语
-    st.markdown("### 💌 Spencer寄语")
+    # 下方文字分三行独立显示
     st.markdown("""
-    > 正能量来了！
-    > **格高志远，学贯中外。**
-    > 祝各位同学练习顺利，早日上岸！
+    正能量来了！  
+    **格高志远，学贯中外。** 祝各位同学练习顺利，早日上岸！
     """)
+    
     st.markdown("---")
 
     user_api_key = st.text_input("🔑 API Key", type="password", placeholder="sk-...")
@@ -128,7 +133,7 @@ elif 6 <= current_hour < 9:
 
 st.write("---")
 
-# 响应式布局：电脑端两列，手机端自动折叠为单列
+# 响应式布局
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("📤 源语材料 (Source)")
@@ -154,26 +159,21 @@ if st.button("🏁 第二步：开始自动评估反馈", use_container_width=Tr
         client = OpenAI(api_key=user_api_key, base_url="https://api.deepseek.com")
         
         with st.spinner("AI 正在认真听取并分析中（长音频请保持页面开启）..."):
-            # 临时存盘
             with open("s.mp3", "wb") as f: f.write(src_file.getbuffer())
             with open("i.mp3", "wb") as f: f.write(interp_file.getbuffer())
 
             try:
-                # 1. 语音转文字 & 显式清理内存
                 model = st.session_state.whisper_model
                 res_s = model.transcribe("s.mp3", fp16=False)["text"]
                 res_i = model.transcribe("i.mp3", fp16=False)["text"]
                 gc.collect() 
 
-                # 2. AI 校对
                 st.info("✨ 正在进行文本校对与消歧...")
                 p_src = polish_transcript(client, res_s, "auto", is_source=True)
                 p_interp = polish_transcript(client, res_i, "auto", is_source=False, src_context=p_src)
 
-                # 3. 评估报告
                 eval_report = analyze_logic(client, p_src, p_interp, "zh", "en", academic=academic_mode)
 
-                # 4. 构建下载用的完整记录
                 final_output = f"""# 🎧 SISU 口译练习反馈报告
 生成时间：{time.strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -192,10 +192,8 @@ if st.button("🏁 第二步：开始自动评估反馈", use_container_width=Tr
 ## 📊 3. AI 深度评估
 {eval_report}
 """
-
-                # 5. 展示与互动
-                st.success("✅ 分析完成！请查看下方报告或下载记录。")
-                st.snow() # ❄️ 任务成功彩蛋
+                st.success("✅ 分析完成！")
+                st.snow() 
                 st.toast("🎉 太棒了，又完成了一次练习！", icon='👏')
 
                 st.markdown(final_output)
@@ -210,6 +208,5 @@ if st.button("🏁 第二步：开始自动评估反馈", use_container_width=Tr
             except Exception as e:
                 st.error(f"运行出错: {e}")
             finally:
-                # 清理临时文件
                 for f in ["s.mp3", "i.mp3"]:
                     if os.path.exists(f): os.remove(f)
