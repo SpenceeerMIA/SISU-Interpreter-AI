@@ -62,8 +62,7 @@ with st.sidebar:
         type="password", 
         placeholder="在此粘贴 sk-...",
         key="ds_api_key_v2", # 更改 key 名通常能重置浏览器的自动填充记录
-        help="API Key 是敏感信息，已自动加密。
-        建议到DeepSeek官网申请一个API Key，不测也给我去领一个！"
+        help="API Key 是敏感信息，已自动加密。\n建议到DeepSeek官网申请一个API Key，不测也给我去领一个！"
     )
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
@@ -111,7 +110,7 @@ current_hour = time.localtime().tm_hour
 if 0 <= current_hour < 6:
     st.warning("🌙 **很晚了！！** 求你，赶紧睡吧！")
 elif 6 <= current_hour < 9:
-    st.info("☕ **早啊！** 一日之计在于晨，看到这个，说明你起得很早了，先睡会儿吧（")
+    st.info("☕ **早啊！** 一日之计在于晨，看到这个，说明你起得很早了，再睡会儿吧，你很努力了")
 
 st.write("---")
 
