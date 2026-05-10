@@ -51,18 +51,20 @@ def analyze_logic(client, model_name, src_text, interp_text, academic=False, res
     prompt = f"请评估以下口译练习。\n源语：{src_text}\n译语：{interp_text}\n\n"
     
     if academic:
-        # 核心增强：强制 15-20 个案例 + 深度因果分析
         prompt += f"""--- 🎓 学术分析模式（上外毕业论文级别数据分析） ---
 【指定研究维度】：{research_question}
 
 要求：
-1. **多样本实例对比**：请从文中提取 15-20 个具体的【源语片段 vs 学生译语】对比案例。
-   - 例子需覆盖全文，请用表格形式清晰呈现。
-2. **研究方向因果分析**：
-   - 针对上述 15-20 个例子，深度分析哪些翻译错误是由于「{research_question}」这一因素直接或间接造成的。
-   - 分析需具有学术深度（如：认知负荷分配不均、听辨精力不足、脱壳技巧缺失等）。
+1. **多维度实例对比**：请从文中提取 15-20 个具体的【源语片段 vs 学生译语】对比案例。
+   - **选例标准**：案例需具备代表性，且包含不同长度的跨度：
+     * **微观案例**：5-8 个 1-2 句的短例（侧重词汇、术语或短语处理）。
+     * **中观案例**：5-7 个 3-4 句的中长例（侧重句式调整、逻辑衔接）。
+     * **宏观案例**：3-5 个 5-6 句的长段落案例（侧重篇章结构、信息整合及脱壳处理）。
+   - 请用表格形式呈现：| 编号 | 跨度类型 | 源语片段 | 学生译语 | 推荐译法 |
+2. **研究方向深度剖析**：
+   - 针对上述 15-20 个案例，深度分析哪些翻译错误是由于「{research_question}」造成的。尤其针对长段落例子，分析在高认知负荷下，该因素如何导致了译语质量下滑。
 3. **真实学术文献推荐**：
-   - 请列举 3-5 篇与「{research_question}」和「口译练习/评估」直接相关的**真实可查**的学术论文。
+   - 请列举 3-5 篇与「{research_question}」相关的**真实可查**的学术论文。
    - 格式：[作者]. [标题]. [刊名]. [年份].
 """
     else:
@@ -84,31 +86,18 @@ def analyze_logic(client, model_name, src_text, interp_text, academic=False, res
 with st.sidebar:
     st.title("⚙️ 配置与指引")
 
-    # API 配置区（无默认值，带 Help 引导）
     user_api_key = st.text_input(
-        "🔑 输入 API Key", type="password", placeholder="在此粘贴你的 sk-...",
-        help="请先前往 AI 服务商官网申请 Key，即使暂时不测也建议去领一个！"
+        "🔑 输入 API Key", type="password", placeholder="在此粘贴你的 sk-...", key="ds_api_key_v2",
+        help="API Key 是敏感信息，已自动加密。\n\n建议到官网申请一个 API Key，不测也给我去领一个！万一哪天要用呢？"
     )
-    api_base = st.text_input(
-        "🌐 API Base URL", value="", placeholder="例如: https://api.deepseek.com/v1",
-        help="请输入服务商提供的地址。由于网络原因，建议确保地址在你的网络环境下可访问。"
-    )
-    model_id = st.text_input(
-        "🤖 模型名称 (Model ID)", value="", placeholder="例如: deepseek-chat 或 gpt-4o",
-        help="请输入具体的模型代号。"
-    )
+    api_base = st.text_input("🌐 API Base URL", value="", placeholder="例如: https://api.deepseek.com/v1", help="请输入服务商提供的 API 基础地址（兼容 OpenAI 格式）。")
+    model_id = st.text_input("🤖 模型名称 (Model ID)", value="", placeholder="例如: deepseek-chat 或 gpt-4o", help="填入具体的模型代号即可。")
     
     model_size = st.selectbox("🎯 Whisper 精度", ["base", "small"], index=1, help="💰有限，其他size缺货中...")
-    
-    # 学术模式配置
     academic_mode = st.checkbox("🎓 开启学术分析模式")
     research_q = ""
     if academic_mode:
-        research_q = st.text_input(
-            "🔍 请输入你的研究分析方向", 
-            placeholder="如：听辨障碍、漏译现象、显化处理、脱壳等",
-            help="AI 将围绕这个方向提取 15-20 个案例进行深度因果分析。"
-        )
+        research_q = st.text_input("🔍 请输入你的研究分析方向", placeholder="如：听辨障碍、脱壳处理等", help="填入你的毕业论文研究方向，AI 会帮你抓 15-20 个长短不一的典型案例。")
 
     st.markdown("---")
     
@@ -117,7 +106,6 @@ with st.sidebar:
             with st.spinner("正在云端初始化引擎..."):
                 st.session_state.whisper_model = whisper.load_model(model_size)
                 st.success("✅ 引擎就绪！")
-                st.balloons()
     else:
         st.success(f"✅ 引擎 ({model_size}) 运行中")
 
@@ -126,7 +114,7 @@ with st.sidebar:
     if os.path.exists("sisu_meme.png"):
         st.image("sisu_meme.png", use_container_width=True)
     else:
-        st.info("🖼️ 待上传：sisu_meme.png")
+        st.info("🖼️ 待上传：sisu_meme.png (没有表情包的工具是没有灵魂的)")
 
     st.markdown("### 💌 Spencer寄语")
     st.markdown("正能量来了！\n\n**格高志远，学贯中外。**\n\n祝各位同学练习顺利，早日上岸！")
@@ -135,10 +123,19 @@ with st.sidebar:
 st.title("🏫 SISU 口译练习评估系统")
 st.markdown("> **“格高志远 学贯中外”** —— 为上外学子定制的 AI 助学实验项目")
 
+# --- 动态时间寄语逻辑 ---
+current_hour = time.localtime().tm_hour
+if 0 <= current_hour < 6:
+    st.warning("🌙 **很晚了！！** 求你，赶紧睡吧！")
+elif 6 <= current_hour < 8:
+    st.info("☕ **早啊！** 一日之计在于晨，看到这个，说明你起得很早了，再睡会儿吧，你很努力了")
+
+st.info("📱 **手机端用户：** 点击下方上传框后，可直接选择“录音机”现场录制你的翻译。")
+
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("📤 源语材料")
-    src_file = st.file_uploader("上传原语", type=["mp3", "m4a", "wav", "mp4", "docx", "txt"], key="src_up")
+    src_file = st.file_uploader("上传原语音频", type=["mp3", "m4a", "wav", "mp4", "docx", "txt"], key="src_up")
     if src_file and not src_file.name.lower().endswith(('.docx', '.txt')): st.audio(src_file)
 
 with col2:
@@ -148,36 +145,30 @@ with col2:
 
 if st.button("🏁 第二步：开始自动评估反馈", use_container_width=True):
     if not user_api_key or not api_base or not model_id:
-        st.error("❌ 请完整填写左侧 API 配置（Key, URL, Model ID）！")
+        st.error("❌ 请先在左侧边栏完整填写 API 配置！")
     elif not src_file or not interp_file:
         st.error("❌ 请同时上传源语和译语文件！")
-    elif academic_mode and not research_q:
-        st.warning("⚠️ 已开启学术模式，建议填写研究方向以获得更精准的分析。")
     elif 'whisper_model' not in st.session_state:
-        st.error("❌ 请先点击激活 AI 引擎！")
+        st.error("❌ 请先点击左侧按钮激活 AI 引擎！")
     else:
         client = OpenAI(api_key=user_api_key, base_url=api_base)
-        with st.spinner("AI 正在深度剖析内容，请稍候..."):
+        with st.spinner("AI 正在深度剖析内容..."):
             try:
-                # 处理源语
-                if src_file.name.lower().endswith('.docx'):
-                    p_src_raw = extract_text_from_docx(src_file)
-                elif src_file.name.lower().endswith('.txt'):
-                    p_src_raw = src_file.read().decode("utf-8")
+                # A. 处理源语
+                if src_file.name.lower().endswith('.docx'): p_src_raw = extract_text_from_docx(src_file)
+                elif src_file.name.lower().endswith('.txt'): p_src_raw = src_file.read().decode("utf-8")
                 else:
                     with open("s.mp3", "wb") as f: f.write(src_file.getbuffer())
                     p_src_raw = st.session_state.whisper_model.transcribe("s.mp3", fp16=False)["text"]
 
-                # 处理译语
-                if interp_file.name.lower().endswith('.docx'):
-                    p_interp_raw = extract_text_from_docx(interp_file)
-                elif interp_file.name.lower().endswith('.txt'):
-                    p_interp_raw = interp_file.read().decode("utf-8")
+                # B. 处理译语
+                if interp_file.name.lower().endswith('.docx'): p_interp_raw = extract_text_from_docx(interp_file)
+                elif interp_file.name.lower().endswith('.txt'): p_interp_raw = interp_file.read().decode("utf-8")
                 else:
                     with open("i.mp3", "wb") as f: f.write(interp_file.getbuffer())
                     p_interp_raw = st.session_state.whisper_model.transcribe("i.mp3", fp16=False)["text"]
 
-                # 文本校对与报告生成
+                # C. 校对与评估
                 p_src = polish_transcript(client, model_id, p_src_raw, "auto", is_source=True)
                 p_interp = polish_transcript(client, model_id, p_interp_raw, "auto", is_source=False, src_context=p_src)
                 eval_report = analyze_logic(client, model_id, p_src, p_interp, academic=academic_mode, research_question=research_q)
@@ -185,9 +176,8 @@ if st.button("🏁 第二步：开始自动评估反馈", use_container_width=Tr
                 st.markdown(f"### 📊 评估报告\n\n{eval_report}")
                 st.download_button(label="📥 下载报告 (.md)", data=eval_report, file_name=f"SISU_Analysis_{int(time.time())}.md")
                 st.success("✅ 分析完成！")
-            except Exception as e:
-                st.error(f"处理过程中出错: {e}")
+            except Exception as e: st.error(f"处理过程中出错: {e}")
             finally:
-                gc.collect() 
+                gc.collect()
                 for f in ["s.mp3", "i.mp3"]:
                     if os.path.exists(f): os.remove(f)
