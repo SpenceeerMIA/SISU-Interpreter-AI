@@ -85,7 +85,6 @@ with st.sidebar:
     st.title("⚙️ 配置与指引")
 
     # 🌈 Spencer 寄语与表情包展示区
-    st.markdown("### 💌 Spencer寄语")
     
     # 图片上方的文字描述
     st.write("赶论文前中后期的Spencer真实写照：")
@@ -96,11 +95,14 @@ with st.sidebar:
     else:
         st.info("🖼️ 待上传表情包：sisu_meme.png")
         st.caption("请确保图片已重命名并上传至 GitHub 仓库根目录。")
-        
+
+    st.markdown("### 💌 Spencer寄语")
+    
     # 下方文字分三行独立显示
     st.markdown("""
     正能量来了！  
-    **格高志远，学贯中外。** 祝各位同学练习顺利，早日上岸！
+    **格高志远，学贯中外。** 
+    祝各位同学练习顺利，早日上岸！
     """)
     
     st.markdown("---")
