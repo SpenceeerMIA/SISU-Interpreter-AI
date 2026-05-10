@@ -1,5 +1,14 @@
 import streamlit as st
 import os
+import shutil
+
+# 自动检测 ffmpeg 路径
+ffmpeg_path = shutil.which("ffmpeg")
+if ffmpeg_path:
+    # 打印到日志中，方便你排查
+    print(f"FFmpeg found at: {ffmpeg_path}") 
+else:
+    st.error("🚨 服务器尚未配齐音视频引擎，请确保 GitHub 仓库中有 packages.txt 文件并包含 ffmpeg。")
 import whisper
 import time
 from openai import OpenAI
