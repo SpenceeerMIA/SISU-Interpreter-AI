@@ -1,3 +1,11 @@
+# 新增：引入读取 docx 所需的库
+from docx import Document
+import io
+
+def extract_text_from_docx(file):
+    """专门从 docx 中提取文字"""
+    doc = Document(io.BytesIO(file.read()))
+    return "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
 import streamlit as st
 import os
 import whisper
@@ -20,7 +28,7 @@ st.set_page_config(
     page_title="SISU口译教练 AI", 
     layout="wide", 
     page_icon="🏫",
-    initial_sidebar_state="auto"
+    initial_sidebar_ate="auto"
 )
 
 # ============================================================
@@ -119,38 +127,84 @@ st.write("---")
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("📤 源语材料")
-    src_file = st.file_uploader("上传原语音频", type=["mp3", "m4a", "wav", "mp4"], key="src_up")
+    src_file = st.file_uploader("上传原语音频", type=["mp3", "m4a", "wav", "mp4", "docx", "txt"], key="src_up")
     if src_file: st.audio(src_file)
 
 with col2:
     st.subheader("📥 你的译语")
-    interp_file = st.file_uploader("上传口译录音", type=["mp3", "m4a", "wav", "mp4"], key="int_up")
+    interp_file = st.file_uploader("上传口译录音", type=["mp3", "m4a", "wav", "mp4", "docx", "txt"], key="int_up")
     if interp_file: st.audio(interp_file)
 
 if st.button("🏁 第二步：开始自动评估反馈", use_container_width=True):
-    if not user_api_key or not src_file or not interp_file or 'whisper_model' not in st.session_state:
-        st.error("❌ 请检查配置和文件。")
+    if not user_api_key:
+        st.error("❌ 请先在左侧边栏填入 API Key！")
+    elif not src_file or not interp_file:
+        st.error("❌ 请同时上传源语和译语文件！")
+    elif 'whisper_model' not in st.session_state:
+        st.error("❌ 请先在左侧边栏点击按钮激活 AI 引擎！")
     else:
         client = OpenAI(api_key=user_api_key, base_url="https://api.deepseek.com")
-        with st.spinner("AI 正在认真听取并分析中..."):
-            with open("s.mp3", "wb") as f: f.write(src_file.getbuffer())
-            with open("i.mp3", "wb") as f: f.write(interp_file.getbuffer())
+        
+        with st.spinner("AI 正在解析内容（文字秒传，音视频转写较慢，请稍候）..."):
             try:
-                model = st.session_state.whisper_model
-                res_s = model.transcribe("s.mp3", fp16=False)["text"]
-                res_i = model.transcribe("i.mp3", fp16=False)["text"]
-                gc.collect() 
-                p_src = polish_transcript(client, res_s, "auto")
-                p_interp = polish_transcript(client, res_i, "auto", is_source=False, src_context=p_src)
+                # --- A. 处理源语 (Source) ---
+                if src_file.name.lower().endswith('.docx'):
+                    p_src_raw = extract_text_from_docx(src_file)
+                elif src_file.name.lower().endswith('.txt'):
+                    p_src_raw = src_file.read().decode("utf-8")
+                else:
+                    # 只有音视频才存盘并调用 Whisper 转写
+                    with open("s.mp3", "wb") as f: f.write(src_file.getbuffer())
+                    p_src_raw = st.session_state.whisper_model.transcribe("s.mp3", fp16=False)["text"]
+
+                # --- B. 处理译语 (Interpretation) ---
+                if interp_file.name.lower().endswith('.docx'):
+                    p_interp_raw = extract_text_from_docx(interp_file)
+                elif interp_file.name.lower().endswith('.txt'):
+                    p_interp_raw = interp_file.read().decode("utf-8")
+                else:
+                    with open("i.mp3", "wb") as f: f.write(interp_file.getbuffer())
+                    p_interp_raw = st.session_state.whisper_model.transcribe("i.mp3", fp16=False)["text"]
+
+                # --- C. 统一文本润色与校对 ---
+                st.info("✨ 正在进行文本校对与消歧...")
+                p_src = polish_transcript(client, p_src_raw, "auto", is_source=True)
+                p_interp = polish_transcript(client, p_interp_raw, "auto", is_source=False, src_context=p_src)
+
+                # --- D. 生成评估报告 ---
                 eval_report = analyze_logic(client, p_src, p_interp, "zh", "en", academic=academic_mode)
-                
-                final_output = f"# 🎧 反馈报告\n\n## 📝 源语原文\n{p_src}\n\n## 🎙️ 学生译语\n{p_interp}\n\n## 📊 AI 评估\n{eval_report}"
+
+                # --- E. 结果展示 ---
+                final_output = f"""# 🎧 SISU 口译练习反馈报告
+生成时间：{time.strftime('%Y-%m-%d %H:%M:%S')}
+
+---
+## 📝 1. 源语原文 (Source)
+{p_src}
+
+---
+## 🎙️ 2. 学生译语文本 (Interpretation)
+{p_interp}
+
+---
+## 📊 3. AI 深度评估
+{eval_report}
+"""
                 st.success("✅ 分析完成！")
                 st.snow() 
                 st.markdown(final_output)
-                st.download_button("📥 下载记录 (.md)", final_output, file_name="SISU_Practice.md")
+                
+                st.download_button(
+                    label="📥 下载完整练习记录 (.md)",
+                    data=final_output,
+                    file_name=f"SISU_Practice_{int(time.time())}.md",
+                    mime="text/markdown"
+                )
+
             except Exception as e:
-                st.error(f"出错: {e}")
+                st.error(f"处理过程中出错: {e}")
             finally:
+                # 垃圾回收与临时文件清理
+                gc.collect() 
                 for f in ["s.mp3", "i.mp3"]:
                     if os.path.exists(f): os.remove(f)
